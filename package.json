@@ -1,0 +1,39 @@
+{
+  "name": "id-bridge-matcher",
+  "version": "1.0.0",
+  "description": "",
+  "author": "hartaithan@gmail.com",
+  "license": "GPL-3.0",
+  "main": "main.js",
+  "type": "commonjs",
+  "homepage": "https://github.com/Hartaithan/id-bridge-matcher#readme",
+  "bugs": {
+    "url": "https://github.com/Hartaithan/id-bridge-matcher/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hartaithan/id-bridge-matcher.git"
+  },
+  "scripts": {
+    "build": "npx tsc",
+    "start": "node dist/main.js",
+    "dev": "npx tsx --watch src/main.ts",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "format": "npx prettier . --write",
+    "types": "npx tsc --noemit",
+    "check": "npm run lint && npm run types"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/node": "^24.10.1",
+    "eslint": "^9.39.1",
+    "prettier": "^3.6.2",
+    "prettier-plugin-organize-imports": "^4.3.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.47.0"
+  }
+}
