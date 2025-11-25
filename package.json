@@ -25,6 +25,7 @@
     "check": "npm run lint && npm run types"
   },
   "dependencies": {
+    "cheerio": "^1.1.2",
     "dotenv": "^17.2.3"
   },
   "devDependencies": {
