@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "npx tsc",
-    "start": "node dist/main.js",
+    "start": "npm run build && node dist/main.js",
     "dev": "npx tsx --watch src/main.ts",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
