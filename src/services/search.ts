@@ -6,18 +6,23 @@ const messages = {
   "search-failed": "failed to search by query: ",
 };
 
-interface SearchParams {
-  query: string;
-}
-
 interface ParsedResult {
   label: string;
   link: string | undefined;
+  image: string | undefined;
+}
+
+interface SearchParams {
+  query: string;
+  platform: string | undefined;
+}
+
+interface FindParams extends SearchParams {
+  parsed: ParsedResult[];
 }
 
 class Search {
   private readonly url: string;
-  private current: string | null = null;
 
   constructor() {
     const url = process.env.TARGET_URL;
@@ -26,16 +31,12 @@ class Search {
   }
 
   async search(params: SearchParams): Promise<string | null> {
-    const { query } = params;
+    const { query, platform } = params;
     if (query?.trim().length === 0) return null;
-    this.current = query;
-
-    const id: string | null = null;
 
     const content = await this.fetch(params);
     const parsed = this.parse(content);
-
-    console.info("parsed", parsed);
+    const id = this.find({ query, platform, parsed });
 
     return id;
   }
@@ -59,13 +60,31 @@ class Search {
 
     const cheerio = load(content);
     const links = cheerio("a");
-    links.each((_index, element) => {
-      const text = cheerio(element).text();
-      const href = cheerio(element).attr("href");
-      result.push({ label: text, link: href });
+    const images = cheerio("img");
+    links.each((index, element) => {
+      const label = cheerio(element).text();
+      const link = cheerio(element).attr("href");
+      const image = cheerio(images?.[index]).attr("src");
+      result.push({ label, link, image });
     });
 
     return result;
+  }
+
+  find(params: FindParams): string | null {
+    const { query, platform, parsed } = params;
+    let id: string | null = null;
+    for (const item of parsed) {
+      if (!item.label.includes("Jogo: ")) continue;
+      const labelSearch = query?.toLocaleLowerCase() || "+++";
+      if (!item.label.toLocaleLowerCase().includes(labelSearch)) continue;
+      const platformSearch = platform?.toLocaleLowerCase() || "+++";
+      if (!item.image?.toLocaleLowerCase().includes(platformSearch)) continue;
+      const splitted = item.link?.split("/");
+      id = splitted?.at(-2) || null;
+      if (id) break;
+    }
+    return id;
   }
 }
 
