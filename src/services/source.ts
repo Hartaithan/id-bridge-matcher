@@ -1,7 +1,8 @@
-import { SourceData } from "../models/source";
+import { SourceData, SourceItem } from "../models/source";
 
 const messages = {
   "env-not-found": "environment variable is not defined",
+  "url-not-found": "url is not defined",
   "fetch-data-failed": "failed to fetch data from source",
   "no-data": "no data available",
 };
@@ -18,6 +19,7 @@ class Source {
 
   async fetchData(): Promise<void> {
     try {
+      if (!this.url) throw new Error(messages["url-not-found"]);
       const response = await fetch(this.url);
       if (!response.ok) throw new Error(messages["fetch-data-failed"]);
       this.data = (await response.json()) as SourceData;
@@ -29,6 +31,11 @@ class Source {
   getData(): SourceData {
     if (!this.data) throw new Error(messages["no-data"]);
     return this.data;
+  }
+
+  getArrayData(): [string, SourceItem][] {
+    if (!this.data) throw new Error(messages["no-data"]);
+    return Object.entries(this.data.list);
   }
 }
 
