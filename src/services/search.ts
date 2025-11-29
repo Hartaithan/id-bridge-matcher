@@ -1,4 +1,5 @@
 import { load } from "cheerio";
+import { normalizeQuery } from "../utils/normalize";
 
 const messages = {
   "env-not-found": "environment variable is not defined",
@@ -45,7 +46,8 @@ class Search {
     const { query } = params;
     try {
       if (!this.url) throw new Error(messages["url-not-found"]);
-      const url = `${this.url}/search/${encodeURIComponent(query)}`;
+      const normalized = normalizeQuery(query);
+      const url = `${this.url}/search/${encodeURIComponent(normalized)}`;
       const response = await fetch(url);
       if (!response.ok) throw new Error(messages["search-failed"] + query);
       const content = await response.text();
@@ -76,8 +78,8 @@ class Search {
     let id: string | null = null;
     for (const item of parsed) {
       if (!item.label.includes("Jogo: ")) continue;
-      const labelSearch = query?.toLocaleLowerCase() || "+++";
-      if (!item.label.toLocaleLowerCase().includes(labelSearch)) continue;
+      const labelSearch = normalizeQuery(query || "+++");
+      if (!normalizeQuery(item.label).includes(labelSearch)) continue;
       const platformSearch = platform?.toLocaleLowerCase() || "+++";
       if (!item.image?.toLocaleLowerCase().includes(platformSearch)) continue;
       const splitted = item.link?.split("/");
