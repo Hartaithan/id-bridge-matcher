@@ -4,11 +4,11 @@ import path from "node:path";
 interface JSONParams<T> {
   value: T;
   filename: string;
-  directory: string;
+  directory?: string;
 }
 
 export const saveToJSON = <T>(params: JSONParams<T>): void => {
-  const { value, filename, directory } = params;
+  const { value, filename, directory = "dist" } = params;
   const distDir = path.join(process.cwd(), directory);
   if (!existsSync(distDir)) mkdirSync(distDir, { recursive: true });
   const filePath = path.join(distDir, filename);

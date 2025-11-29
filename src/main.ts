@@ -27,11 +27,7 @@ const run = async () => {
   } catch (error) {
     console.error("error", error);
   } finally {
-    saveToJSON({
-      value: result,
-      filename: "result.json",
-      directory: "dist",
-    });
+    saveToJSON({ value: result, filename: "result.json" });
   }
 };
 
