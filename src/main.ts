@@ -1,11 +1,14 @@
 import "dotenv/config";
 import { SourceData } from "./models/source";
+import { Logger } from "./services/logger";
 import Search from "./services/search";
 import Source from "./services/source";
 import { saveToJSON } from "./utils/file";
 
 const run = async () => {
-  const result: SourceData["list"] = {};
+  const logger = new Logger();
+  const matched: SourceData["list"] = {};
+  const unmatched: SourceData["list"] = {};
 
   try {
     const source = new Source();
@@ -13,21 +16,28 @@ const run = async () => {
     const data = source.getArrayData();
 
     const search = new Search();
-    for (const [_key, item] of data) {
-      const id = await search.search({
-        query: item.title,
-        platform: item.platforms[0],
-      });
-      if (id) {
-        result[id] = item;
-      } else {
-        console.info(`id for ${item.title}, ${item.platforms} not found`);
+    logger.start(data.length);
+    for (let i = 0; i < data.length; i++) {
+      const [key, item] = data[i];
+      logger.progress(i, item.title);
+      try {
+        const id = await search.search({
+          query: item.title,
+          platform: item.platforms[0],
+        });
+        if (!id) throw new Error("unmatched");
+        matched[id] = item;
+      } catch (error) {
+        unmatched[key] = item;
+        logger.error(`${item.title} [${item.platforms}]`, error);
       }
     }
   } catch (error) {
     console.error("error", error);
   } finally {
-    saveToJSON({ value: result, filename: "result.json" });
+    logger.complete(Object.keys(matched).length);
+    saveToJSON({ value: matched, filename: "matched.json" });
+    saveToJSON({ value: unmatched, filename: "unmatched.json" });
   }
 };
 
