@@ -5,6 +5,17 @@ import Search from "./services/search";
 import Source from "./services/source";
 import { saveToJSON } from "./utils/file";
 
+let shouldStop = false;
+
+const handleShutdown = (signal: string) => {
+  if (shouldStop) return;
+  shouldStop = true;
+  console.info(`\nreceived signal ${signal}, shutting down...`);
+};
+
+process.on("SIGINT", () => handleShutdown("SIGINT"));
+process.on("SIGTERM", () => handleShutdown("SIGTERM"));
+
 const run = async () => {
   const logger = new Logger();
   const matched: SourceData["list"] = {};
@@ -18,6 +29,7 @@ const run = async () => {
     const search = new Search();
     logger.start(data.length);
     for (let i = 0; i < data.length; i++) {
+      if (shouldStop) break;
       const [key, item] = data[i];
       logger.progress(i, item.title);
       try {

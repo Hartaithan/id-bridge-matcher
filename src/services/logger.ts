@@ -5,7 +5,7 @@ export class Logger {
   start(total: number): void {
     this.startTime = Date.now();
     this.totalItems = total;
-    console.info(`parsing started, total items: ${total}\n`);
+    console.info(`parsing started, total items: ${total}`);
   }
 
   progress(index: number, label: string): void {
@@ -25,7 +25,7 @@ export class Logger {
 
   complete(matched: number): void {
     const elapsed = this.getElapsedTime();
-    console.info("\n" + "=".repeat(50));
+    console.info("=".repeat(50));
     console.info("parsing completed!");
     console.info(`total time: ${elapsed}`);
     console.info(`matched ${matched} out of ${this.totalItems}`);
