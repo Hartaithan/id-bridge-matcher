@@ -3,7 +3,7 @@ import { SourceData } from "./models/source";
 import { Logger } from "./services/logger";
 import Search from "./services/search";
 import Source from "./services/source";
-import { saveToJSON } from "./utils/file";
+import { save } from "./utils/save";
 
 let shouldStop = false;
 
@@ -48,8 +48,8 @@ const run = async () => {
     console.error("error", error);
   } finally {
     logger.complete(Object.keys(matched).length);
-    saveToJSON({ value: matched, filename: "matched.json" });
-    saveToJSON({ value: unmatched, filename: "unmatched.json" });
+    save.json({ value: matched, filename: "matched" });
+    save.json({ value: unmatched, filename: "unmatched" });
   }
 };
 
