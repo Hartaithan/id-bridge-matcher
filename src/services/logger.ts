@@ -1,3 +1,9 @@
+interface ProgressParams {
+  index: number;
+  label: string;
+  skip: boolean;
+}
+
 export class Logger {
   private startTime: number = 0;
   private totalItems: number = 0;
@@ -8,10 +14,13 @@ export class Logger {
     console.info(`parsing started, total items: ${total}`);
   }
 
-  progress(index: number, label: string): void {
+  progress(params: ProgressParams): void {
+    const { index, label, skip } = params;
     const current = index + 1;
     const percentage = ((current / this.totalItems) * 100).toFixed(2);
-    console.info(`${label} | ${current}/${this.totalItems} | ${percentage}%`);
+    console.info(
+      `${skip ? "[SKIP] " : ""}${label} | ${current}/${this.totalItems} | ${percentage}%`,
+    );
   }
 
   error(label: string, error?: Error | unknown): void {
