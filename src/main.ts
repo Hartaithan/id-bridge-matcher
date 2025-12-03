@@ -1,10 +1,9 @@
 import "dotenv/config";
-import { SourceData } from "./models/source";
 import { Logger } from "./services/logger";
 import Mapping from "./services/mapping";
+import Matched from "./services/matched";
 import Search from "./services/search";
 import Source from "./services/source";
-import { save } from "./utils/save";
 
 let shouldStop = false;
 
@@ -20,8 +19,7 @@ process.on("SIGTERM", () => handleShutdown("SIGTERM"));
 const run = async () => {
   const logger = new Logger();
   const mapping = new Mapping();
-  const matched: SourceData["list"] = {};
-  const unmatched: SourceData["list"] = {};
+  const matched = new Matched();
 
   try {
     const source = new Source();
@@ -43,18 +41,18 @@ const run = async () => {
         });
         if (!id) throw new Error("unmatched");
         mapping.set(key, id);
-        matched[id] = item;
+        matched.set("matched", id, item);
       } catch (error) {
-        unmatched[key] = item;
+        matched.set("unmatched", key, item);
         logger.error(`${item.title} [${item.platforms}]`, error);
       }
     }
   } catch (error) {
     console.error("error", error);
   } finally {
-    logger.complete(Object.keys(matched).length);
-    save.json({ value: matched, filename: "matched" });
-    save.json({ value: unmatched, filename: "unmatched" });
+    logger.complete(matched.count("matched"));
+    matched.save("matched");
+    matched.save("unmatched");
     mapping.save();
   }
 };
