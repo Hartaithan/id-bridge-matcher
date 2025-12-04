@@ -27,7 +27,7 @@ const run = async () => {
     const data = source.getArrayData();
 
     const search = new Search();
-    logger.start(data.length);
+    logger.start(data.length, matched);
     for (let i = 0; i < data.length; i++) {
       if (shouldStop) break;
       const [key, item] = data[i];
@@ -50,7 +50,7 @@ const run = async () => {
   } catch (error) {
     console.error("error", error);
   } finally {
-    logger.complete(matched.count("matched"));
+    logger.complete(matched);
     matched.save("matched");
     matched.save("unmatched");
     mapping.save();
