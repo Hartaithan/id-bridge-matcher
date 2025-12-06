@@ -1,5 +1,6 @@
 import { load } from "cheerio";
 import { normalizeQuery } from "../utils/normalize";
+import { getID, getPlatforms } from "../utils/parse";
 import { generateSearchVariants } from "../utils/search";
 
 const messages = {
@@ -8,10 +9,10 @@ const messages = {
   "search-failed": "failed to search by query: ",
 };
 
-interface ParsedResult {
+interface SearchResult {
+  id: string;
   label: string;
-  link: string | undefined;
-  image: string | undefined;
+  platforms: string[];
 }
 
 interface SearchParams {
@@ -24,7 +25,7 @@ interface FetchParams {
 }
 
 interface FindParams extends SearchParams {
-  parsed: ParsedResult[];
+  results: SearchResult[];
 }
 
 class Search {
@@ -44,8 +45,8 @@ class Search {
     const variants = generateSearchVariants(query);
     for (const variant of variants) {
       const content = await this.fetch({ query: variant });
-      const parsed = this.parse(content);
-      id = this.find({ query, platform, parsed });
+      const results = this.parse(content);
+      id = this.find({ query: variant, platform, results });
       if (!id) continue;
       break;
     }
@@ -67,36 +68,39 @@ class Search {
     }
   }
 
-  parse(content: string): ParsedResult[] {
-    const result: ParsedResult[] = [];
-
+  parse(content: string): SearchResult[] {
+    const result: SearchResult[] = [];
     const cheerio = load(content);
     const links = cheerio("a");
     const images = cheerio("img");
-    links.each((index, element) => {
-      const label = cheerio(element).text();
-      const link = cheerio(element).attr("href");
-      const image = cheerio(images?.[index]).attr("src");
-      result.push({ label, link, image });
-    });
+    for (let index = 0; index < links.length; index++) {
+      const element = links[index];
+      const label = cheerio(element).text()?.trim();
+      if (!label.startsWith("Jogo: ")) continue;
 
+      const link = cheerio(element).attr("href")?.trim();
+      const id = getID(link);
+      if (!id) continue;
+
+      const image = cheerio(images?.[index]).attr("src")?.trim();
+      const platforms = getPlatforms(image);
+      if (platforms.length === 0) continue;
+
+      result.push({ id, label, platforms });
+    }
     return result;
   }
 
   find(params: FindParams): string | null {
-    const { query, platform, parsed } = params;
-    let id: string | null = null;
-    for (const item of parsed) {
-      if (!item.label.includes("Jogo: ")) continue;
+    const { query, platform, results } = params;
+    for (const item of results) {
       const labelSearch = normalizeQuery(query || "+++");
       if (!normalizeQuery(item.label).includes(labelSearch)) continue;
-      const platformSearch = platform?.toLocaleLowerCase() || "+++";
-      if (!item.image?.toLocaleLowerCase().includes(platformSearch)) continue;
-      const splitted = item.link?.split("/");
-      id = splitted?.at(-2) || null;
-      if (id) break;
+      const platformSearch = platform?.toUpperCase() || "+++";
+      if (!item.platforms.includes(platformSearch)) continue;
+      return item.id;
     }
-    return id;
+    return null;
   }
 }
 
