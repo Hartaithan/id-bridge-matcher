@@ -1,5 +1,3 @@
-import { normalizeQuery } from "./normalize";
-
 const romanToArabic: Record<string, string> = {
   I: "1",
   II: "2",
@@ -33,7 +31,7 @@ const arabicPatterns = Object.keys(arabicToRoman).map((arabic) => ({
 }));
 
 export const generateSearchVariants = (query: string) => {
-  const normalized = normalizeQuery(query);
+  const normalized = query.replace(/\s+/g, " ").trim();
   const variants = new Set<string>([query.toLowerCase(), normalized]);
 
   for (const { regex, replacement } of romanPatterns) {

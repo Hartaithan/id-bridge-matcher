@@ -1,5 +1,6 @@
 import { load } from "cheerio";
 import { normalizeQuery } from "../utils/normalize";
+import { generateSearchVariants } from "../utils/search";
 
 const messages = {
   "env-not-found": "environment variable is not defined",
@@ -16,6 +17,10 @@ interface ParsedResult {
 interface SearchParams {
   query: string;
   platform: string | undefined;
+}
+
+interface FetchParams {
+  query: string;
 }
 
 interface FindParams extends SearchParams {
@@ -35,19 +40,24 @@ class Search {
     const { query, platform } = params;
     if (query?.trim().length === 0) return null;
 
-    const content = await this.fetch(params);
-    const parsed = this.parse(content);
-    const id = this.find({ query, platform, parsed });
+    let id: string | null = null;
+    const variants = generateSearchVariants(query);
+    for (const variant of variants) {
+      const content = await this.fetch({ query: variant });
+      const parsed = this.parse(content);
+      id = this.find({ query, platform, parsed });
+      if (!id) continue;
+      break;
+    }
 
     return id;
   }
 
-  async fetch(params: SearchParams) {
+  async fetch(params: FetchParams) {
     const { query } = params;
     try {
       if (!this.url) throw new Error(messages["url-not-found"]);
-      const normalized = normalizeQuery(query);
-      const url = `${this.url}/search/${encodeURIComponent(normalized)}`;
+      const url = `${this.url}/search/${encodeURIComponent(query)}`;
       const response = await fetch(url);
       if (!response.ok) throw new Error(messages["search-failed"] + query);
       const content = await response.text();
