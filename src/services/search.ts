@@ -1,6 +1,7 @@
 import { load } from "cheerio";
+import { regionsKeys } from "../constants/region";
 import { normalizeQuery } from "../utils/normalize";
-import { getID, getPlatforms } from "../utils/parse";
+import { getID, getPlatforms, getRegion } from "../utils/parse";
 import { generateSearchVariants } from "../utils/search";
 
 const messages = {
@@ -13,11 +14,13 @@ interface SearchResult {
   id: string;
   label: string;
   platforms: string[];
+  region: string | undefined;
 }
 
 interface SearchParams {
   query: string;
   platform: string | undefined;
+  region: string | undefined;
 }
 
 interface FetchParams {
@@ -38,7 +41,7 @@ class Search {
   }
 
   async search(params: SearchParams): Promise<string | null> {
-    const { query, platform } = params;
+    const { query, platform, region } = params;
     if (query?.trim().length === 0) return null;
 
     let id: string | null = null;
@@ -46,7 +49,7 @@ class Search {
     for (const variant of variants) {
       const content = await this.fetch({ query: variant });
       const results = this.parse(content);
-      id = this.find({ query: variant, platform, results });
+      id = this.find({ query: variant, platform, region, results });
       if (!id) continue;
       break;
     }
@@ -86,18 +89,24 @@ class Search {
       const platforms = getPlatforms(image);
       if (platforms.length === 0) continue;
 
-      result.push({ id, label, platforms });
+      const region = getRegion(label);
+
+      result.push({ id, label, platforms, region });
     }
     return result;
   }
 
   find(params: FindParams): string | null {
-    const { query, platform, results } = params;
+    const { query, platform, region, results } = params;
     for (const item of results) {
       const labelSearch = normalizeQuery(query || "+++");
       if (!normalizeQuery(item.label).includes(labelSearch)) continue;
       const platformSearch = platform?.toUpperCase() || "+++";
       if (!item.platforms.includes(platformSearch)) continue;
+      if (region === "NA" || !region) return item.id;
+      if (region && !item.region) continue;
+      const regionKey = item?.region ? regionsKeys[item.region] : undefined;
+      if (regionKey !== region) continue;
       return item.id;
     }
     return null;

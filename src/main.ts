@@ -38,6 +38,7 @@ const run = async () => {
         const id = await search.search({
           query: item.title,
           platform: item.platforms[0],
+          region: item?.region,
         });
         if (!id) throw new Error("unmatched");
         mapping.set(key, id);

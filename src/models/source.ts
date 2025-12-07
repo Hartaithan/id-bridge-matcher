@@ -4,6 +4,7 @@ export interface SourceItem {
   submitter: string;
   note: string;
   trophies: number[];
+  region?: string;
 }
 
 export interface SourceData {

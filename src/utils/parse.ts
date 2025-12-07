@@ -14,3 +14,9 @@ export const getPlatforms = (value: string | undefined): string[] => {
   if (result.length === 0) return [];
   return result;
 };
+
+export const getRegion = (value: string | undefined): string | undefined => {
+  if (!value) return;
+  const match = value.match(/\[([A-Z]{3,4})\]/);
+  return match?.[1];
+};
