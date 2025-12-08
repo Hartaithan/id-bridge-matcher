@@ -1,7 +1,6 @@
 import { load } from "cheerio";
-import { regionsKeys } from "../constants/region";
-import { normalizeQuery } from "../utils/normalize";
-import { getID, getPlatforms, getRegion } from "../utils/parse";
+import Fuse, { Expression, IFuseOptions as Options } from "fuse.js";
+import { getID, getLabel, getPlatforms, getRegion } from "../utils/parse";
 import { generateSearchVariants } from "../utils/search";
 
 const messages = {
@@ -30,6 +29,19 @@ interface FetchParams {
 interface FindParams extends SearchParams {
   results: SearchResult[];
 }
+
+const options: Options<SearchResult> = {
+  keys: [
+    { name: "label", weight: 0.5 },
+    { name: "platforms", weight: 0.3 },
+    { name: "region", weight: 0.2 },
+  ],
+  threshold: 0.3,
+  distance: 100,
+  ignoreLocation: true,
+  useExtendedSearch: true,
+  includeScore: true,
+};
 
 class Search {
   private readonly url: string;
@@ -78,8 +90,9 @@ class Search {
     const images = cheerio("img");
     for (let index = 0; index < links.length; index++) {
       const element = links[index];
-      const label = cheerio(element).text()?.trim();
-      if (!label.startsWith("Jogo: ")) continue;
+      const rawLabel = cheerio(element).text()?.trim();
+      if (!rawLabel.startsWith("Jogo: ")) continue;
+      const label = getLabel(rawLabel);
 
       const link = cheerio(element).attr("href")?.trim();
       const id = getID(link);
@@ -89,7 +102,7 @@ class Search {
       const platforms = getPlatforms(image);
       if (platforms.length === 0) continue;
 
-      const region = getRegion(label);
+      const region = getRegion(rawLabel);
 
       result.push({ id, label, platforms, region });
     }
@@ -97,19 +110,19 @@ class Search {
   }
 
   find(params: FindParams): string | null {
-    const { query, platform, region, results } = params;
-    for (const item of results) {
-      const labelSearch = normalizeQuery(query || "+++");
-      if (!normalizeQuery(item.label).includes(labelSearch)) continue;
-      const platformSearch = platform?.toUpperCase() || "+++";
-      if (!item.platforms.includes(platformSearch)) continue;
-      if (region === "NA" || !region) return item.id;
-      if (region && !item.region) continue;
-      const regionKey = item?.region ? regionsKeys[item.region] : undefined;
-      if (regionKey !== region) continue;
-      return item.id;
-    }
-    return null;
+    const { query, platform, region, results: data } = params;
+
+    const fuse = new Fuse(data, options);
+
+    const pattern: Expression = { $and: [] };
+    pattern.$and = pattern.$and ?? [];
+    if (query) pattern.$and.push({ label: query });
+    if (platform) pattern.$and.push({ platforms: `'${platform}` });
+    if (region) pattern.$and.push({ region: `'${region}` });
+
+    const results = fuse.search(pattern);
+    if (results.length === 0) return null;
+    return results[0].item.id;
   }
 }
 

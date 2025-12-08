@@ -1,6 +1,6 @@
-export const regionsKeys: Record<string, string> = {
+export const regionMap: Record<string, string> = {
   JAP: "JP",
-  EUR: "JP",
+  EUR: "EU",
   CHN: "CN",
   RUS: "RU",
   KOR: "KR",

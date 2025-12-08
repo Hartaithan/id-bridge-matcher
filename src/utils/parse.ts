@@ -1,3 +1,13 @@
+import { regionMap } from "../constants/region";
+
+export const getLabel = (value: string) => {
+  if (!value) return value;
+  return value
+    .replace(/^Jogo:\s*/i, "")
+    .replace(/\[.*?\]/g, "")
+    .trim();
+};
+
 export const getID = (value: string | undefined): string | null => {
   if (!value) return null;
   const splitted = value.split("/");
@@ -18,5 +28,7 @@ export const getPlatforms = (value: string | undefined): string[] => {
 export const getRegion = (value: string | undefined): string | undefined => {
   if (!value) return;
   const match = value.match(/\[([A-Z]{3,4})\]/);
-  return match?.[1];
+  if (!match) return;
+  const raw = match[1].toUpperCase();
+  return raw && regionMap?.[raw];
 };
