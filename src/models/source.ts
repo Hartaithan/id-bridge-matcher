@@ -11,3 +11,5 @@ export interface SourceData {
   version: number;
   list: Record<string, SourceItem>;
 }
+
+export type SourceDataArray = [string, SourceItem][];

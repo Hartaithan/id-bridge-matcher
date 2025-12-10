@@ -1,4 +1,4 @@
-import { SourceData, SourceItem } from "../models/source";
+import { SourceData, SourceDataArray } from "../models/source";
 
 const messages = {
   "env-not-found": "environment variable is not defined",
@@ -33,7 +33,7 @@ class Source {
     return this.data;
   }
 
-  getArrayData(): [string, SourceItem][] {
+  getArrayData(): SourceDataArray {
     if (!this.data) throw new Error(messages["no-data"]);
     return Object.entries(this.data.list);
   }

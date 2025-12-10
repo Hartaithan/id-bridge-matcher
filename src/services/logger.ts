@@ -1,29 +1,16 @@
-import Matched from "./matched";
-
 interface ProgressParams {
   index: number;
   label: string;
   skip: boolean;
 }
 
-interface Counts {
-  matched: number;
-  unmatched: number;
-}
-
 export class Logger {
   private startTime: number = 0;
   private totalItems: number = 0;
-  private before: Counts = { matched: 0, unmatched: 0 };
-  private after: Counts = { matched: 0, unmatched: 0 };
 
-  start(total: number, matched: Matched): void {
+  start(total: number): void {
     this.startTime = Date.now();
     this.totalItems = total;
-    this.before = {
-      matched: matched.count("matched"),
-      unmatched: matched.count("unmatched"),
-    };
     console.info(`parsing started, total items: ${total}`);
   }
 
@@ -45,18 +32,12 @@ export class Logger {
     console.error(`[ERROR] ${label}`, message);
   }
 
-  complete(matched: Matched): void {
-    this.after = {
-      matched: matched.count("matched"),
-      unmatched: matched.count("unmatched"),
-    };
+  complete(matched: number): void {
     const elapsed = this.getElapsedTime();
     console.info("=".repeat(50));
     console.info("parsing completed!");
     console.info(`total time: ${elapsed}`);
-    console.info(`matched ${this.after.matched} out of ${this.totalItems}`);
-    console.info(`+${this.after.matched - this.before.matched} matched`);
-    console.info(`+${this.after.unmatched - this.before.unmatched} unmatched`);
+    console.info(`matched ${matched} out of ${this.totalItems}`);
     console.info("=".repeat(50));
   }
 
