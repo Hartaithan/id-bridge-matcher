@@ -25,10 +25,13 @@ export const getPlatforms = (value: string | undefined): string[] => {
   return result;
 };
 
-export const getRegion = (value: string | undefined): string | undefined => {
-  if (!value) return;
+export const getRegion = (
+  value: string | undefined,
+  empty: string = "ANY",
+): string => {
+  if (!value) return empty;
   const match = value.match(/\[([A-Z]{3,4})\]/);
-  if (!match) return;
+  if (!match) return empty;
   const raw = match[1].toUpperCase();
-  return raw && regionMap?.[raw];
+  return raw ? regionMap?.[raw] : empty;
 };
