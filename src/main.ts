@@ -4,6 +4,7 @@ import { Logger } from "./services/logger";
 import Mapping from "./services/mapping";
 import Search from "./services/search";
 import Source from "./services/source";
+import { hasAsianChars } from "./utils/title";
 
 let stop = false;
 
@@ -31,6 +32,10 @@ const run = async () => {
     for (let i = 0; i < data.length; i++) {
       if (stop) break;
       const [key, item] = data[i];
+      if (hasAsianChars(item.title)) {
+        logger.error(`${item.title} | asian characters not supported`);
+        continue;
+      }
       const skip = mapping.has(key);
       logger.progress({ index: i, label: item.title, skip });
       if (skip) continue;
