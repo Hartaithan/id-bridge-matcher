@@ -4,5 +4,6 @@ export const regionMap: Record<string, string> = {
   CHN: "CN",
   RUS: "RU",
   KOR: "KR",
+  GER: "GER",
   UK: "UK",
 };
