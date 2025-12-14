@@ -35,25 +35,23 @@ const arabicPatterns = Object.keys(arabicToRoman).map((arabic) => ({
 }));
 
 export const generateSearchVariants = (query: string) => {
-  const normalized = query.replace(/\s+/g, " ").trim().toLowerCase();
-  const variants = new Set<string>([normalized]);
+  const cleaned = query.replace(/\s+/g, " ").trim().toLowerCase();
+  const variants = new Set<string>([cleaned]);
 
-  const withoutDiacritics = removeDiacritics(normalized);
-  if (withoutDiacritics !== normalized) {
-    variants.add(withoutDiacritics);
-  }
+  const withoutDiacritics = removeDiacritics(cleaned);
+  if (withoutDiacritics !== cleaned) variants.add(withoutDiacritics);
 
   for (const { regex, replacement } of romanPatterns) {
-    if (regex.test(normalized)) {
+    if (regex.test(cleaned)) {
       regex.lastIndex = 0;
-      variants.add(normalized.replace(regex, replacement));
+      variants.add(cleaned.replace(regex, replacement));
     }
   }
 
   for (const { regex, replacement } of arabicPatterns) {
-    if (regex.test(normalized)) {
+    if (regex.test(cleaned)) {
       regex.lastIndex = 0;
-      variants.add(normalized.replace(regex, replacement));
+      variants.add(cleaned.replace(regex, replacement));
     }
   }
 

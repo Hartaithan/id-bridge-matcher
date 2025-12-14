@@ -118,10 +118,7 @@ class Search {
     pattern.$and = pattern.$and ?? [];
     if (query) pattern.$and.push({ label: query });
     if (platform) pattern.$and.push({ platforms: `'${platform}` });
-    if (region) {
-      const or = [{ region: `'${region}` }, { region: "ANY" }];
-      pattern.$and.push({ $or: or });
-    }
+    if (region) pattern.$and.push({ region: `'${region}` });
 
     const results = fuse.search(pattern);
     if (results.length === 0) return null;
