@@ -17,7 +17,7 @@
   "scripts": {
     "build": "npx tsc",
     "parse": "tsx src/main.ts",
-    "preview": "nodemon --watch src/preview --ext ts,html --exec tsx src/preview/preview.ts",
+    "preview": "browser-sync start --server src/preview --files \"src/preview/**/*\"",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "npx prettier . --write",
@@ -32,8 +32,8 @@
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@types/node": "^24.10.1",
+    "browser-sync": "^3.0.4",
     "eslint": "^9.39.1",
-    "nodemon": "^3.1.11",
     "prettier": "^3.6.2",
     "prettier-plugin-organize-imports": "^4.3.0",
     "typescript": "^5.9.3",
