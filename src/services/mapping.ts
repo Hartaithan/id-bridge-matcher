@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { MappingData } from "../models/mapping";
 import { SourceData, SourceDataArray } from "../models/source";
 import { save } from "../utils/save";
 
@@ -14,7 +15,7 @@ const filenames = {
 };
 
 class Mapping {
-  private value: Record<string, string> = {};
+  private value: MappingData = {};
 
   constructor() {
     try {

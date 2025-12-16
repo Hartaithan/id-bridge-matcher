@@ -1,4 +1,5 @@
 import { SourceData, SourceDataArray } from "../models/source";
+import { save } from "../utils/save";
 
 const messages = {
   "env-not-found": "environment variable is not defined",
@@ -6,6 +7,8 @@ const messages = {
   "fetch-data-failed": "failed to fetch data from source",
   "no-data": "no data available",
 };
+
+const filename = "source.json";
 
 class Source {
   private readonly url: string;
@@ -23,6 +26,7 @@ class Source {
       const response = await fetch(this.url);
       if (!response.ok) throw new Error(messages["fetch-data-failed"]);
       this.data = (await response.json()) as SourceData;
+      save.json({ value: this.data, filename });
     } catch (_error) {
       throw new Error(messages["fetch-data-failed"]);
     }

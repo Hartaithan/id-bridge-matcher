@@ -1,10 +1,11 @@
 export interface SourceItem {
   title: string;
   platforms: string[];
-  submitter: string;
-  note: string;
+  submitter?: string;
+  note?: string;
   trophies: number[];
   region?: string;
+  timestamp?: number;
 }
 
 export interface SourceData {
