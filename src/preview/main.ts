@@ -36,11 +36,12 @@ const render = async (container: HTMLDivElement) => {
     const mapped = mapping?.[key] || undefined;
 
     const row = document.createElement("tr");
+    if (!mapped) row.classList.add("unmatched");
 
     appendCell(row, item?.title);
     appendCell(row, item?.platforms.join(", "));
     appendCell(row, key);
-    appendCell(row, mapped);
+    appendCell(row, mapped || "unmatched");
 
     body.appendChild(row);
   }
