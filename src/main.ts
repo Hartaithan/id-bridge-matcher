@@ -32,13 +32,13 @@ const run = async () => {
     for (let i = 0; i < data.length; i++) {
       if (stop) break;
       const [key, item] = data[i];
+      const skip = mapping.has(key);
+      logger.progress({ index: i, item, skip });
+      if (skip) continue;
       if (hasAsianChars(item.title)) {
-        logger.error(`${item.title} | asian characters not supported`);
+        logger.error("asian characters not supported");
         continue;
       }
-      const skip = mapping.has(key);
-      logger.progress({ index: i, label: item.title, skip });
-      if (skip) continue;
       try {
         const id = await search.search({
           query: item.title,
@@ -47,15 +47,16 @@ const run = async () => {
         });
         if (!id) throw new Error("unmatched");
         mapping.set(key, id);
+        logger.complete();
       } catch (error) {
-        logger.error(`${item.title} [${item.platforms}]`, error);
+        logger.error(error);
       }
     }
   } catch (error) {
     console.error("error", error);
   } finally {
     const { matched } = mapping.save(data);
-    logger.complete(matched);
+    logger.end(matched);
   }
 };
 
