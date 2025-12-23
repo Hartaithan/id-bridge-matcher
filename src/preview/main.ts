@@ -4,7 +4,7 @@ import { MappingData } from "../models/mapping";
 import { SourceData } from "../models/source";
 import "./style.css";
 
-const headers = ["Title", "Platform", "Source ID", "Matched ID"];
+const headers = ["Title", "Platform", "Region", "Source ID", "Matched ID"];
 
 const appendCell = (row: HTMLTableRowElement, value: string | undefined) => {
   const cell = document.createElement("td");
@@ -40,6 +40,7 @@ const render = async (container: HTMLDivElement) => {
 
     appendCell(row, item?.title);
     appendCell(row, item?.platforms.join(", "));
+    appendCell(row, item?.region ?? "-");
     appendCell(row, key);
     appendCell(row, mapped || "unmatched");
 
