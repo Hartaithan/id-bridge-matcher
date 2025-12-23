@@ -12,10 +12,7 @@ const appendCell = (row: HTMLTableRowElement, value: string | undefined) => {
   row.appendChild(cell);
 };
 
-const render = async (container: HTMLDivElement) => {
-  const mapping: MappingData = mappingData;
-  const source: SourceData = sourceData;
-
+const renderTable = (mapping: MappingData, source: SourceData) => {
   const table = document.createElement("table");
   const thead = document.createElement("thead");
   const header = document.createElement("tr");
@@ -48,6 +45,55 @@ const render = async (container: HTMLDivElement) => {
   }
 
   table.appendChild(body);
+  return table;
+};
+
+const appendStatsItem = (
+  container: HTMLDivElement,
+  label: string,
+  value: string | number,
+) => {
+  const statEl = document.createElement("div");
+  statEl.className = "stats-item";
+
+  const labelEl = document.createElement("p");
+  labelEl.textContent = label;
+  statEl.appendChild(labelEl);
+
+  const valueEl = document.createElement("span");
+  valueEl.textContent = value?.toString() ?? value;
+  statEl.appendChild(valueEl);
+
+  container.appendChild(statEl);
+};
+
+const renderStats = (mapping: MappingData, source: SourceData) => {
+  const container = document.createElement("div");
+  container.className = "stats-container";
+
+  const version = source?.version ?? "Not Found";
+  const total = Object.keys(source.list).length;
+  const matched = Object.keys(mapping).length;
+  const unmatched = total - matched;
+  const progress = total > 0 ? Math.round((matched / total) * 100) : 0;
+
+  appendStatsItem(container, "Version", version);
+  appendStatsItem(container, "Matched", matched);
+  appendStatsItem(container, "Unmatched", unmatched);
+  appendStatsItem(container, "Progress", progress + "%");
+  appendStatsItem(container, "Total", total);
+
+  return container;
+};
+
+const render = async (container: HTMLDivElement) => {
+  const mapping: MappingData = mappingData;
+  const source: SourceData = sourceData;
+
+  const stats = renderStats(mapping, source);
+  container.appendChild(stats);
+
+  const table = renderTable(mapping, source);
   container.appendChild(table);
 };
 

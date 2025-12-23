@@ -26,6 +26,7 @@ body {
 
 table {
   max-width: 900px;
+  margin-top: 24px;
 }
 
 table,
@@ -47,4 +48,21 @@ tr.unmatched {
 
 th {
   text-align: left;
+}
+
+.stats-container {
+  display: flex;
+  gap: 24px;
+}
+
+.stats-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+}
+
+.stats-item > p {
+  font-weight: 600;
 }
