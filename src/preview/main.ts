@@ -90,8 +90,11 @@ const render = async (container: HTMLDivElement) => {
   const mapping: MappingData = mappingData;
   const source: SourceData = sourceData;
 
+  const header = document.createElement("header");
+  container.appendChild(header);
+
   const stats = renderStats(mapping, source);
-  container.appendChild(stats);
+  header.appendChild(stats);
 
   const table = renderTable(mapping, source);
   container.appendChild(table);

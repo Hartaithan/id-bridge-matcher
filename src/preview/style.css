@@ -50,6 +50,14 @@ th {
   text-align: left;
 }
 
+header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: sticky;
+  top: 24px;
+}
+
 .stats-container {
   display: flex;
   gap: 24px;
@@ -61,6 +69,7 @@ th {
   justify-content: center;
   align-items: center;
   font-size: 18px;
+  text-shadow: 2px 2px 2px oklch(14.5% 0 0);
 }
 
 .stats-item > p {
