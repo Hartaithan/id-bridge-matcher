@@ -4,6 +4,8 @@ import { MappingData } from "../models/mapping";
 import { SourceData } from "../models/source";
 import "./style.css";
 
+type Status = "all" | "matched" | "unmatched";
+
 const headers = ["Title", "Platform", "Region", "Source ID", "Matched ID"];
 
 const appendCell = (row: HTMLTableRowElement, value: string | undefined) => {
@@ -12,8 +14,13 @@ const appendCell = (row: HTMLTableRowElement, value: string | undefined) => {
   row.appendChild(cell);
 };
 
-const renderTable = (mapping: MappingData, source: SourceData) => {
+const renderTable = (
+  mapping: MappingData,
+  source: SourceData,
+  status: Status = "all",
+) => {
   const table = document.createElement("table");
+  table.id = "matched-table";
   const thead = document.createElement("thead");
   const header = document.createElement("tr");
 
@@ -31,6 +38,9 @@ const renderTable = (mapping: MappingData, source: SourceData) => {
   const items = Object.entries(source?.list || {});
   for (const [key, item] of items) {
     const mapped = mapping?.[key] || undefined;
+
+    if (status === "matched" && !mapped) continue;
+    if (status === "unmatched" && mapped) continue;
 
     const row = document.createElement("tr");
     if (!mapped) row.classList.add("unmatched");
@@ -86,6 +96,26 @@ const renderStats = (mapping: MappingData, source: SourceData) => {
   return container;
 };
 
+type StatusChangeHandler = (event: Event) => void;
+
+const renderFilters = (handleStatusChange: StatusChangeHandler) => {
+  const container = document.createElement("form");
+  container.className = "filters";
+
+  const checkbox = document.createElement("input");
+  checkbox.id = "status";
+  checkbox.type = "checkbox";
+  checkbox.onchange = handleStatusChange;
+  container.appendChild(checkbox);
+
+  const label = document.createElement("label");
+  label.htmlFor = "status";
+  label.textContent = "Only unmatched";
+  container.appendChild(label);
+
+  return container;
+};
+
 const render = async (container: HTMLDivElement) => {
   const mapping: MappingData = mappingData;
   const source: SourceData = sourceData;
@@ -95,6 +125,18 @@ const render = async (container: HTMLDivElement) => {
 
   const stats = renderStats(mapping, source);
   header.appendChild(stats);
+
+  const handleStatusChange: StatusChangeHandler = (event) => {
+    const value = (event.target as HTMLInputElement)?.checked ?? false;
+    const status: Status = value ? "unmatched" : "all";
+    const tableEl = document.getElementById("matched-table");
+    if (!tableEl) return;
+    const table = renderTable(mapping, source, status);
+    tableEl.replaceWith(table);
+  };
+
+  const filters = renderFilters(handleStatusChange);
+  header.appendChild(filters);
 
   const table = renderTable(mapping, source);
   container.appendChild(table);

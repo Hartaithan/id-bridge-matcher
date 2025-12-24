@@ -75,3 +75,10 @@ header {
 .stats-item > p {
   font-weight: 600;
 }
+
+form.filters {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
