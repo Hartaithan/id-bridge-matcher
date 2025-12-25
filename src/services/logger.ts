@@ -13,6 +13,8 @@ export class Logger {
   private currentItem: string = "";
   private startTime: number = 0;
   private totalItems: number = 0;
+  private wasSkip: boolean = false;
+  private skipCount: number = 0;
 
   start(total: number): void {
     this.startTime = Date.now();
@@ -20,16 +22,27 @@ export class Logger {
     log.persist(`matching started, total items: ${total}`);
   }
 
+  private skip(): void {
+    if (!this.wasSkip) log.done();
+    if (!this.wasSkip) this.skipCount = 0;
+    this.skipCount++;
+    const count = `(${this.skipCount} skipped)`;
+    log(`${pc.yellow("[SKIP]")} ${this.currentItem} ${count}`);
+    this.wasSkip = true;
+  }
+
+  private proceed(): void {
+    if (this.wasSkip) log.done();
+    log(`${pc.blue("[PROGRESS]")} ${this.currentItem}`);
+    this.wasSkip = false;
+  }
+
   progress(params: ProgressParams): void {
     const { index, item, skip } = params;
     this.currentIndex = index;
     this.currentItem = `${this.getLabel(item)} | ${this.getProgress()}`;
-    if (skip) {
-      log(`${pc.yellow("[SKIP]")} ${this.currentItem}`);
-      log.done();
-    } else {
-      log(`${pc.blue("[PROGRESS]")} ${this.currentItem}`);
-    }
+    if (skip) this.skip();
+    else this.proceed();
   }
 
   complete() {
