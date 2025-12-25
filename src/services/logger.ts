@@ -40,7 +40,8 @@ export class Logger {
   progress(params: ProgressParams): void {
     const { index, item, skip } = params;
     this.currentIndex = index;
-    this.currentItem = `${this.getLabel(item)} | ${this.getProgress()}`;
+    const progress = this.getProgress(this.currentIndex + 1);
+    this.currentItem = `${this.getLabel(item)} | ${progress}`;
     if (skip) this.skip();
     else this.proceed();
   }
@@ -64,8 +65,9 @@ export class Logger {
     const elapsed = this.getElapsedTime();
     log.persist(pc.green("=".repeat(50)));
     log.persist(pc.green("parsing completed!"));
-    log.persist(pc.green(`total time: ${elapsed}`));
+    log.persist(pc.green(`total time ${elapsed}`));
     log.persist(pc.green(`matched ${matched} out of ${this.totalItems}`));
+    log.persist(pc.green(`completion ${this.getProgress(matched)}%`));
     log.persist(pc.green("=".repeat(50)));
   }
 
@@ -76,10 +78,9 @@ export class Logger {
     return result;
   }
 
-  private getProgress() {
-    const current = this.currentIndex + 1;
-    const percentage = ((current / this.totalItems) * 100).toFixed(2);
-    return `${current}/${this.totalItems} | ${percentage}%`;
+  private getProgress(value: number) {
+    const percentage = ((value / this.totalItems) * 100).toFixed(2);
+    return `${value}/${this.totalItems} | ${percentage}%`;
   }
 
   private getElapsedTime(): string {
