@@ -1,5 +1,6 @@
 import { load } from "cheerio";
 import Fuse, { Expression, IFuseOptions as Options } from "fuse.js";
+import { regionReMap } from "../constants/region";
 import { getID, getLabel, getPlatforms, getRegion } from "../utils/parse";
 import { generateSearchVariants } from "../utils/search";
 
@@ -118,7 +119,8 @@ class Search {
     pattern.$and = pattern.$and ?? [];
     if (query) pattern.$and.push({ label: query });
     if (platform) pattern.$and.push({ platforms: `'${platform}` });
-    if (region) pattern.$and.push({ region: `'${region}` });
+    const remapped = region ? regionReMap?.[region] || region : null;
+    if (remapped) pattern.$and.push({ region: `'${remapped}` });
 
     const results = fuse.search(pattern);
     if (results.length === 0) return null;

@@ -7,3 +7,7 @@ export const regionMap: Record<string, string> = {
   GER: "GER",
   UK: "UK",
 };
+
+export const regionReMap: Record<string, string> = {
+  NA: "ANY",
+};
