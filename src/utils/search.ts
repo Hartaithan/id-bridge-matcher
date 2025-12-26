@@ -41,6 +41,9 @@ export const generateSearchVariants = (query: string) => {
   const withoutDiacritics = removeDiacritics(cleaned);
   if (withoutDiacritics !== cleaned) variants.add(withoutDiacritics);
 
+  const withoutColons = cleaned.replace(/:/g, "");
+  if (withoutColons !== cleaned) variants.add(withoutColons);
+
   for (const { regex, replacement } of romanPatterns) {
     if (regex.test(cleaned)) {
       regex.lastIndex = 0;
