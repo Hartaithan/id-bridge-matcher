@@ -46,6 +46,7 @@ const options: Options<SearchResult> = {
 
 class Search {
   private readonly url: string;
+  private cache: Map<string, string> = new Map();
 
   constructor() {
     const url = process.env.TARGET_URL;
@@ -72,12 +73,17 @@ class Search {
 
   async fetch(params: FetchParams) {
     const { query } = params;
+
+    const cached = this.cache.get(query);
+    if (cached) return cached;
+
     try {
       if (!this.url) throw new Error(messages["url-not-found"]);
       const url = `${this.url}/search/${encodeURIComponent(query)}`;
       const response = await fetch(url);
       if (!response.ok) throw new Error(messages["search-failed"] + query);
       const content = await response.text();
+      this.cache.set(query, content);
       return content;
     } catch (_error) {
       throw new Error(messages["search-failed"] + query);
