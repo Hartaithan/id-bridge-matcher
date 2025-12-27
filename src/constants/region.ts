@@ -1,13 +1,15 @@
 export const regionMap: Record<string, string> = {
-  JAP: "JP",
-  EUR: "EU",
-  CHN: "CN",
-  RUS: "RU",
-  KOR: "KR",
-  GER: "GER",
   UK: "UK",
+  EUR: "EU",
+  GER: "GER",
+  RUS: "RU",
+  JAP: "JP",
+  KOR: "KR",
+  CHN: "CN",
+  ASIA: "AS",
 };
 
-export const regionReMap: Record<string, string> = {
+export const regionReMap: Record<string, string | string[]> = {
   NA: "ANY",
+  AS: ["AS", "CN", "JP", "KR"],
 };

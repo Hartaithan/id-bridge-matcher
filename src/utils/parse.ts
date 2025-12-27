@@ -30,7 +30,7 @@ export const getRegion = (
   empty: string = "ANY",
 ): string => {
   if (!value) return empty;
-  const match = value.match(/\[([A-Z]{3,4})\]/);
+  const match = value.match(/\[([A-Za-z]{3,4})\]/i);
   if (!match) return empty;
   const raw = match[1].toUpperCase();
   return raw ? regionMap?.[raw] : empty;

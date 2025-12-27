@@ -116,6 +116,14 @@ class Search {
     return result;
   }
 
+  private getRegionPattern(region: string | undefined): Expression | null {
+    const remapped = region ? regionReMap?.[region] || region : null;
+    if (!remapped) return null;
+    if (typeof remapped === "string") return { region: `'${remapped}` };
+    const or = remapped.map((region) => ({ region: `'${region}` }));
+    return { $or: or };
+  }
+
   find(params: FindParams): string | null {
     const { query, platform, region, results: data } = params;
 
@@ -125,8 +133,8 @@ class Search {
     pattern.$and = pattern.$and ?? [];
     if (query) pattern.$and.push({ label: query });
     if (platform) pattern.$and.push({ platforms: `'${platform}` });
-    const remapped = region ? regionReMap?.[region] || region : null;
-    if (remapped) pattern.$and.push({ region: `'${remapped}` });
+    const regionPattern = this.getRegionPattern(region);
+    if (regionPattern) pattern.$and.push(regionPattern);
 
     const results = fuse.search(pattern);
     if (results.length === 0) return null;
