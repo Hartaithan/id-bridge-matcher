@@ -7,6 +7,7 @@ import { generateSearchVariants } from "../utils/search";
 const messages = {
   "env-not-found": "environment variable is not defined",
   "url-not-found": "url is not defined",
+  "container-not-found": "container not found",
   "search-failed": "failed to search by query: ",
 };
 
@@ -79,7 +80,7 @@ class Search {
 
     try {
       if (!this.url) throw new Error(messages["url-not-found"]);
-      const url = `${this.url}/search/${encodeURIComponent(query)}`;
+      const url = `${this.url}/${encodeURIComponent(query)}`;
       const response = await fetch(url);
       if (!response.ok) throw new Error(messages["search-failed"] + query);
       const content = await response.text();
@@ -93,8 +94,8 @@ class Search {
   parse(content: string): SearchResult[] {
     const result: SearchResult[] = [];
     const cheerio = load(content);
-    const links = cheerio("a");
-    const images = cheerio("img");
+    const links = cheerio("a.lnk_search");
+
     for (let index = 0; index < links.length; index++) {
       const element = links[index];
       const rawLabel = cheerio(element).text()?.trim();
@@ -105,7 +106,9 @@ class Search {
       const id = getID(link);
       if (!id) continue;
 
-      const image = cheerio(images?.[index]).attr("src")?.trim();
+      const imageEl = cheerio(element).prev();
+      if (!imageEl.is("img")) continue;
+      const image = imageEl.attr("src")?.trim();
       const platforms = getPlatforms(image);
       if (platforms.length === 0) continue;
 
