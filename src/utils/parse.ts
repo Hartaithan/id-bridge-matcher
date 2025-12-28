@@ -1,7 +1,13 @@
 import { regionMap } from "../constants/region";
 
-export const getLabel = (value: string) => {
-  if (!value) return value;
+const isDLC = (value: string): boolean => {
+  return /(?:^|[\s:])DLC(?:[\s:]|$)/.test(value);
+};
+
+export const getLabel = (value: string): string | null => {
+  if (!value || value?.length === 0) return null;
+  if (!value.startsWith("Jogo: ")) return null;
+  if (isDLC(value)) return null;
   return value
     .replace(/^Jogo:\s*/i, "")
     .replace(/\[.*?\]/g, "")

@@ -99,8 +99,9 @@ class Search {
     for (let index = 0; index < links.length; index++) {
       const element = links[index];
       const rawLabel = cheerio(element).text()?.trim();
-      if (!rawLabel.startsWith("Jogo: ")) continue;
+      if (rawLabel.length === 0) continue;
       const label = getLabel(rawLabel);
+      if (!label) continue;
 
       const link = cheerio(element).attr("href")?.trim();
       const id = getID(link);
